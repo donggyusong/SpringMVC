@@ -13,6 +13,10 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 	<script type="text/javascript">
+		//클라이언트가 서버에 처음 요청시 CSRF 토큰 생성
+		var csrfHeaderName = "${_csrf.headerName}";
+		var csrfTokenValue = "${_csrf.token}";
+	
 		$(document).ready(function(){
 			loadList();
 		})
@@ -105,6 +109,9 @@
 				url : "boardInser.do",
 				type : "post",
 				data : fData,
+				beforeSend: function(xhr){
+					xhr.setRequestHeader(csrfHeaderName, csrfTokenValue)
+				},
 				success : loadList,
 				error : function(){alert("error")}
 			});
@@ -117,7 +124,6 @@
 		}
 		
 		function goContent(idx){
-			console.log('동기')
 			
 			if($("#c"+idx).css("display")=="none"){
 				
@@ -141,8 +147,11 @@
 				//조회수 카운트
 				$.ajax({
 					url : "board/count/"+idx,
-					type : "get",
+					type : "put",
 					dataType : "json",
+					beforeSend: function(xhr){
+						xhr.setRequestHeader(csrfHeaderName, csrfTokenValue)
+					},
 					success : function(data){
 						$("#cnt"+idx).text(data.count);
 					},
@@ -156,6 +165,9 @@
 				url : "board/"+idx,
 				type: "delete",
 				data : {"idx" : idx},
+				beforeSend: function(xhr){
+					xhr.setRequestHeader(csrfHeaderName, csrfTokenValue)
+				},
 				success: loadList,
 				error: function(){alert("error")}
 			})
@@ -182,6 +194,9 @@
 				type : "put",
 				contentType : 'application/json;charset=utf-8',
 				data : JSON.stringfy({"idx" : idx, "title" : title, "content" : content}),
+				beforeSend: function(xhr){
+					xhr.setRequestHeader(csrfHeaderName, csrfTokenValue)
+				},
 				success : loadList,
 				error : function(){
 					alert("error");

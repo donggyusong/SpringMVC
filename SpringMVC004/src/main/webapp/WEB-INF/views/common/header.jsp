@@ -31,11 +31,11 @@
 	            <li><a href="${contextPath}/memImageForm.do"><span class="glyphicon glyphicon-picture"></span>사진등록</a></li>
 	            <li><a href="${contextPath}/memLogout.do"><span class="glyphicon glyphicon-log-in"></span>로그아웃</a></li>
 	            <c:if test="${!empty mvo}">
-					<c:if test="${mvo.memProfile eq ' '}">
+					<c:if test="${empty mvo.memProfile}">
 						<li><img class="img-circle"  src="${contextPath}/resources/image/person.PNG" />${mvo.memName}님 Welcome</li>
 					</c:if>
 					
-					<c:if test="${mvo.memProfile ne ' '}">
+					<c:if test="${!empty mvo.memProfile}">
 						<li><img class="img-circle" src="${contextPath}/resources/upload/${mvo.memProfile}"/>${mvo.memName}님 Welcome</li>
 					</c:if>
 					<label>${mvo.memName}님 방문을 환영합니다.</label>

@@ -213,8 +213,10 @@ public class MemberController {
 			rttr.addFlashAttribute("msgType", "성공 메세지");
 			rttr.addFlashAttribute("msg", "회원 정보 수정에 성공했습니다");
 			
+			//DB에서 수정된 회원정보를 다시 가져오자
+			Member mvo = memberMapper.getMember(m.getMemID());
 			//회원가입이 성공하면 바로 로그인이 되게 처리를 해보자
-			session.setAttribute("mvo",m);
+			session.setAttribute("mvo",mvo);
 			
 			return "redirect:/"; // index.jsp로 리다이렉트
 			
