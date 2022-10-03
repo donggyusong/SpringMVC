@@ -231,8 +231,7 @@ public class MemberController {
 		}
 	}
 	
-	
-	//회원의 사진등록 화면
+	//회원사진 등록화면
 	@RequestMapping("/memImageForm.do")
 	public String memImageForm() {
 		return "member/memImageForm";
@@ -240,58 +239,123 @@ public class MemberController {
 	
 	
 	//회원사진 이미지 업로드(upload/파일이름 DB 저장)
-	@RequestMapping("/memImageUpdate.do")
-	public String memImageUpdate(HttpServletRequest request, RedirectAttributes rttr,HttpSession session) {
-		// 파일업로드 API(cos.jar)
-		MultipartRequest multi = null;
-		
-		//업로드할 파일 사이즈
-		int fileMaxSize = 10*1024*1024; //10MB를 의미한다.
-		
-		//업로드할 경로 지정
-		String savePath = request.getRealPath("resources/upload");
-		System.out.println("savePath");
-		System.out.println(savePath);
-		
+		@RequestMapping("/memImageUpdate.do")
+		public String memImageUpdate(HttpServletRequest request, RedirectAttributes rttr,HttpSession session) {
+			// 파일업로드 API(cos.jar)
+			MultipartRequest multi = null;
+			
+			//업로드할 파일 사이즈
+			int fileMaxSize = 10*1024*1024; //10MB를 의미한다.
+			
+			//업로드할 경로 지정
+			String savePath = request.getRealPath("resources/upload");
+			System.out.println("savePath");
+			System.out.println(savePath);
+			
+					
+			try {
+				//MultipartRequest라는 클래스가 실제 업로드를 해주는 객체이다.
+				//이 객체를 생성시 정보를 넣어줘야한다.
+				//파라미터 정보를 가져오기 위해 request 객체를 넣어줘야한다.
+				//어디다 업로드할 지 경로
+				//업로드 할 파일의 최대 크기
+				//인코딩
+				//동일 이름의 파일이 업로드 될 때 리네임을 해주는 클래스인 DefaultFileRenamePolicy()
+				multi = new MultipartRequest(request,savePath,fileMaxSize,"UTF-8",new DefaultFileRenamePolicy());
 				
-		try {
-			//MultipartRequest라는 클래스가 실제 업로드를 해주는 객체이다.
-			//이 객체를 생성시 정보를 넣어줘야한다.
-			//파라미터 정보를 가져오기 위해 request 객체를 넣어줘야한다.
-			//어디다 업로드할 지 경로
-			//업로드 할 파일의 최대 크기
-			//동일 이름의 파일이 업로드 될 때 리네임을 해주는 클래스인 DefaultFileRenamePolicy()
-			multi = new MultipartRequest(request,savePath,fileMaxSize,"UTF-8",new DefaultFileRenamePolicy());
+			}catch(Exception e) {
+				//용량이 크거나 하면 에러가 날거다.
+				e.printStackTrace();
+				rttr.addFlashAttribute("msgType", "실패 메세지");
+				rttr.addFlashAttribute("msg", "파일의 크기는 10MB를 넘을 수 없습니다.");
+				
+				//파일을 서버에 올릴려면 톰캣이 응답을 해줘야하는데 파일의 용량이 크면 톰캣이 크기를 커버 못해서 인터넷을 끊어버리고 멈춘다.
+				//그래서 파일을 등록하면 "사이트에 연결할 수 없다" 하고 인터넷을 끊어버린다.
+				//서버가 파일 용량을  10MB이상까지 커버를 해줘야 예외가 발생해서 에러 메세지가 뜨는데 그 전에 그걸 커버를 못해서 인터넷을 끊어버린다.
+				//이 문제를 해결하려면 톰캣서버에 뭘 해줘야 한다. server.xml에서  63번째 줄에서 Connector 태그에서 maxSwallowSize="-1"값을 주면 된다.
+				//그러면 최대한 딜레이를  시키는거다. 이게 없으면 기본값으로만 딜레이 해보다가 그게 오버가 되면 톰캣이 멈추기 때문에 이 속성을 주자.
+				//인터넷에 maxswallowsize server.xml을 검색해서 공부해보자.
+				//톰캣 서버가 일단 대용량의 파일을 업로드를 할 때 그 제한을하지 않겠다는거다. 기본이 2MB인데 그걸 넘어버리면 인터넷을 끊어버린다.
+				//이 제한을 해제해주고 프로그램에서 10MB가 넘었을 때 그걸 예외처리로 커버를 해주는거다.
+				
+				//보통 10MB 이상을 올리지도 않고 뷰단에서 JS로 용량체크를 해서 10MB를 못올리도록 제한을 걸 수 있다.
+				return "redirect:/memImageForm.do";
+			}
+			//우선 여기까지한게 파일을 업로드 시킬 객체를 만들어서 파일업로드를 하고 파일 업로드 실패시 예외처리를 했다.		
 			
-		}catch(Exception e) {
-			//용량이 크거나 하면 에러가 날거다.
-			e.printStackTrace();
-			rttr.addFlashAttribute("msgType", "실패 메세지");
-			rttr.addFlashAttribute("msg", "파일의 크기는 10MB를 넘을 수 없습니다.");
+			//회원 아이디 가져오기
+			String memID = multi.getParameter("memID"); 
 			
-			//파일을 서버에 올릴려면 톰캣이 응답을 해줘야하는데 파일의 용량이 크면 톰캣이 크기를 커버 못해서 인터넷을 끊어버리고 멈춘다.
-			//그래서 파일을 등록하면 "사이트에 연결할 수 없다" 하고 인터넷을 끊어버린다.
-			//서버가 파일 용량을  10MB이상까지 커버를 해줘야 에러가 나서 에러 메세지가 뜨는데 그 전에 그걸 커버를 못해서 인터넷을 끊어버린다.
-			//이 문제를 해결하려면 톰캣서버에 뭘 해줘야 한다. server.xml에서  63번째 줄에서 Connector 태그에서 maxSwallowSize="-1"값을 주면 된다.
-			//그러면 최대한 딜레이를  시키는거다. 이게 없으면 기본값으로만 딜레이 해보다가 그게 오버가 되면 톰캣이 멈추기 때문에 이 속성을 주자.
-			//인터넷에 maxswallowsize server.xml을 검색해서 공부해보자.
-			// 톰캣 서버가 일단 대용량의 파일을 업로드를 할 때 그 제한을하지 않겠다는거다. 기본이 2MB인데 그걸 넘어버리면 인터넷을 끊어버린다.
-			//이 제한을 해제해주고 프로그램에서 10MB가 넘었을 때 그걸 예외처리로 커버를 해주는거다.
+			//파일 이름 가져오기
+			String newProfile = "";
 			
-			//보통 10MB 이상을 올리지도 않고 자스에서 용량체크를 해서 10MB를 못올리도록 제한을 걸 수 있다.
-			return "redirect:/memImageForm.do";
+			//업로드를 했으면 이 multi 객체는 업로드한 폴더의 파일들의 이름의 정보를 다 가지고 있다.
+			File file = multi.getFile("memProfile"); //memProfile은 파일을 가지고 있는 파라미터 네임이다.
+			
+			if(file!=null) {
+				//지금 우리는 이미지 파일만 업로드 시킬거다.
+				
+				//확장자 가져오기
+				String ext = file.getName().substring(file.getName().lastIndexOf(".")+1);
+				
+				//확장자가 대문자일 수도 있고 소문자일수도 있으니 대문자로 맞추자
+				ext = ext.toUpperCase();
+				
+				if(ext.equals("PNG")||ext.equals("GIF")||ext.equals("JPG")) {
+					
+					//DB에 저장된 옛날 이미지는 지우고 새로운 이미지만 저장하자
+					//이미지를 DB에 저장한다는건 업로드된 파일의 이름을 저장한다는 말이다.
+					
+					//DB에 있는 옛날 이미지 이름 가져오기
+					String oldProfile = memberMapper.getMember(memID).getMemProfile();
+					
+					//이 옛날 이미지 파일의 이름이 실제 있는지 없는지 확인해야하므로
+					//이 파일이름에 해당하는 File 객체를 만들어서 확인해보자
+					File oldFile = new File(savePath+"/" +oldProfile);
+					
+					if(oldFile.exists()) {
+						oldFile.delete();
+					}
+					
+					newProfile = file.getName();
+				}else {
+					//이미지 파일이 아니면 삭제
+					
+					//우선 파일이 있는지 부터 확인
+					if(file.exists()) {
+						file.delete();
+					}
+					
+					rttr.addFlashAttribute("msgType", "실패 메세지");
+					rttr.addFlashAttribute("msg", "이미지 파일만 업로드 가능합니다.");
+					return "redirect:/memImageForm.do";
+					
+				}
+				
+			}
+		
+			//이제 데이터 베이스 테이블에 기존 회원이미지 말고 새로 업로드한 회원이미지로 업데이트 하자
+			
+			Member mvo = new Member();
+			mvo.setMemID(memID);
+			mvo.setMemProfile(newProfile);
+			memberMapper.memProfileUpdate(mvo); //새로운 이미지로 업데이트
+			
+			//다시 회원정보를 가져오자! 왜?
+			//프로필을 업데이트 했기 때문에 업데이트 된 정보를 가져와야하낟.
+			Member m = memberMapper.getMember(memID);
+			
+			//세션을 새롭게 생성한다.
+			//왜? m 변수안에 변경된 profile 이미지 이름이 있기 때문에
+			
+			session.setAttribute("mvo",mvo);
+			
+			rttr.addFlashAttribute("msgType","성공메세지");
+			rttr.addFlashAttribute("msg","이미지 변경이 성공했습니다.");
+			
+			return "redirect:/";
+			
 		}
-		//우선 여기까지한게 파일을 업로드 시킬 객체를 만들어서 파일업로드를 하고 파일 업로드 실패시 예외처리를 했다.		
-		
-		
-		
-		//이제 데이터 베이스 테이블에 기존 회원이미지 말고 새로 업로드한 회원이미지로 업데이트 하자
-		
-		//여기에 복붙하자
-		
-		return "redirect:/";
-		
-	}
 
 
 }

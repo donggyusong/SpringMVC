@@ -16,7 +16,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
 @MapperScan(basePackages= {"kr.board.mapper"})
-@PropertySource({"classpath:persistence-mysql:properties"})
+@PropertySource({"classpath:persistence-mysql.properties"})
 public class RootConfig {
 
 	@Autowired

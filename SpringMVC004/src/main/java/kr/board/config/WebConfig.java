@@ -7,7 +7,6 @@ import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatche
 //web.xml을 대신해서 만드는 파일
 public class WebConfig extends AbstractAnnotationConfigDispatcherServletInitializer{
 
-	
 	@Override
 	protected Class<?>[] getRootConfigClasses() {
 		// TODO Auto-generated method stub
