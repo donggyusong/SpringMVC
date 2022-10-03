@@ -39,6 +39,7 @@
 				listHtml+="<th>번호</th>";
 				listHtml+="<th>제목</th>";
 				listHtml+="<th>작성자</th>";
+				listHtml+="<th>작성일</th>";
 				listHtml+="<th>조회수</th>";
 				listHtml+="</tr>";
 			  
@@ -73,7 +74,7 @@
 			  //로그인을 해야 보이는 부분
 			  if($(!empty mvo)){
 				  listHtml+="<tr>";
-				  listHtml+="<td>";
+				  listHtml+="<td colspan=5>";
 				  listHtml+="<button class='btn btn-primary btn-sm' onclick='goForm()'>글쓰기</button>";
 				  listHtml+="</td>";
 				  listHtml+="</tr>";
@@ -106,7 +107,7 @@
 			var fData = $("#frm").serialize(); //콘솔에 뭐가 출력되는지 한번 보자
 			
 			$.ajax({
-				url : "boardInser.do",
+				url : "${ctx}/board/news",
 				type : "post",
 				data : fData,
 				beforeSend: function(xhr){
@@ -233,7 +234,7 @@
 								<td><input type="text" id="writer" name="writer" class="form-control" value="${mvo.memName}" readonly="readonly"/></td>
 							</tr>
 							<tr>
-								<td colspan="2">
+								<td colspan="2" align="center">
 									<button type="button" class="btn btn-success btn-sm" onclick="goInsert()">등록</button>
 									<button type="reset" class="btn btn-warning btn-sm" id="fclear">취소</button>
 									<button type="button" class="btn btn-info btn-sm" onclick="goList()">리스트</button>

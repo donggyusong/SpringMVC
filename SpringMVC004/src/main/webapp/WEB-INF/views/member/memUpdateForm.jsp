@@ -21,33 +21,6 @@
 			}
 		})
 
-
-		function registerCheck(){
-			var memID = $("#memID").val()
-			$.ajax({
-				url : "${contextPath}/memRegisterCheck.do",
-				type : "get",
-				data : {"memID" : memID},
-				success : function(result){
-					//중복유무 출력(result=1 : 사용할 수 있는 아이디, 0 : 사용할 수 없는 아이디)
-					if(result==1){
-						$("#checkMesage").html("사용할 수 있는 아이디입니다.")
-						
-						//모달창 화면 스타일을 바꿔줄거다
-						$('#checkType').attr("class","modal-content panel-success")
-					}else{
-						$("#checkMesage").html("사용할 수 없는 아이디입니다.")
-						
-						//모달창 화면 스타일을 바꿔줄거다
-						$('#checkType').attr("class","modal-content panel-warning");
-					}
-					
-					$('#myModal').modal("show");
-				},
-				error : function(){alert("error")}
-			
-			})
-		}
 		
 		function passwordCheck(){
 			var memPassword1 = $("#memPassword1").val();

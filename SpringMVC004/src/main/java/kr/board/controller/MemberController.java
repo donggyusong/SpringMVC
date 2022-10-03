@@ -35,7 +35,7 @@ public class MemberController {
 
 		Member m = memberMapper.registerCheck(memID);
 		
-		if(m==null || memID.equals("")) {
+		if(m!=null || memID.equals("")) {
 			return 1; // 이미 존재하는 회원 또는 아이디를 입력안한 사람
 		}
 		
@@ -138,7 +138,7 @@ public class MemberController {
 		System.out.println(member.getMemID());
 		System.out.println(member.getMemPassword());
 		
-		if(member.getMemID()==null || member.getMemPassword().equals("")||
+		if(member.getMemID()==null || member.getMemID().equals("")||
 				member.getMemPassword()==null || member.getMemPassword().equals("")) {
 			rttr.addFlashAttribute("msgType","실패 메세지");
 			rttr.addFlashAttribute("msg","모든 내용을 입력해주세요");

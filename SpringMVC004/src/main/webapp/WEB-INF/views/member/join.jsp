@@ -36,7 +36,7 @@
 				success : function(result){
 					console.log(result)
 					//중복유무 출력(result=1 : 사용할 수 있는 아이디, 0 : 사용할 수 없는 아이디)
-					if(result==1){
+					if(result==0){
 						$("#checkMessage").html("사용할 수 있는 아이디입니다.")
 						
 						//모달창 화면 스타일을 바꿔줄거다
@@ -56,7 +56,7 @@
 		
 		function passwordCheck(){
 			var memPassword1 = $("#memPassword1").val();
-			var memPassword1 = $("#memPassword1").val();
+			var memPassword2 = $("#memPassword2").val();
 			if(memPassword1 != memPassword2){
 				$("#passMessage").html("비밀번호가 서로 일치하지 않습니다.")
 				//비밀번호가 일치하지 않으면 서버에 값이 넘어가면 안된다.
@@ -64,7 +64,7 @@
 				
 			}else{
 				//일치하면 아무것도 출력안함
-				
+				$("#passMessage").html("")
 				//일치하면 hidden을 넘어가는 input에 값을 넣어줄거다.
 				$('#memPassword').val(memPassword1);
 				
@@ -101,11 +101,11 @@
 					</tr>
 					<tr>
 						<td style="width:110px; vertical-align:middle;">비밀번호</td>
-						<td colspan="2"><input id="memPassword1" name="memPassword1" class="form-control" type='password' maxlength="20" placeholder="비밀번호를 입력하세요" onkeyup="passworkdCheck()"/></td>
+						<td colspan="2"><input id="memPassword1" name="memPassword1" class="form-control" type='password' maxlength="20" placeholder="비밀번호를 입력하세요" onkeyup="passwordCheck()"/></td>
 					</tr>
 					<tr>
 						<td style="width:110px; vertical-align:middle;">비밀번호확인</td>
-						<td colspan="2"><input id="memPassword2" name="memPassword2" class="form-control" type='password' maxlength="20" placeholder="비밀번호를 확인하세요" onkeyup="passworkdCheck()"/></td>
+						<td colspan="2"><input id="memPassword2" name="memPassword2" class="form-control" type='password' maxlength="20" placeholder="비밀번호를 확인하세요" onkeyup="passwordCheck()"/></td>
 					</tr>
 					<tr>
 						<td style="width:110px; vertical-align:middle;">사용자 이름</td>

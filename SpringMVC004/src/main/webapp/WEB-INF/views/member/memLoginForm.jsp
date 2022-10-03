@@ -31,7 +31,6 @@
     <div class="panel-heading">로그인 화면</div>
     <div class="panel-body">
 		<form name="frm" action="${contextPath}/memLogin.do" method="post">
-				<input type="hidden"  id="memPassword" name="memPassword" value=""/>
 				<table class="table table-bordered" style="text-align: center; border: 1px solid #dddddd;">
 				
 					<tr>

@@ -32,13 +32,12 @@
 	            <li><a href="${contextPath}/memLogout.do"><span class="glyphicon glyphicon-log-in"></span>로그아웃</a></li>
 	            <c:if test="${!empty mvo}">
 					<c:if test="${empty mvo.memProfile}">
-						<li><img class="img-circle"  src="${contextPath}/resources/image/person.PNG" />${mvo.memName}님 Welcome</li>
+						<li><img class="img-circle"  src="${contextPath}/resources/images/person.PNG"  style="width: 50px; height: 50px"/>${mvo.memName}님 Welcome</li>
 					</c:if>
 					
 					<c:if test="${!empty mvo.memProfile}">
-						<li><img class="img-circle" src="${contextPath}/resources/upload/${mvo.memProfile}"/>${mvo.memName}님 Welcome</li>
+						<li><img class="img-circle" src="${contextPath}/resources/upload/${mvo.memProfile}" style="width: 50px; height: 50px"/>${mvo.memName}님 Welcome</li>
 					</c:if>
-					<label>${mvo.memName}님 방문을 환영합니다.</label>
 				</c:if>
 	            
 	      </ul>
