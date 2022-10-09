@@ -134,6 +134,16 @@
 						<td style="width:110px; vertical-align:middle;">이메일</td>
 						<td colspan="2"><input  id="memEmail" name="memEmail" class="form-control" type='text' maxlength="20" placeholder="이메일을 입력하세요"/></td>
 					</tr>
+					
+					<tr>
+						<td style="width:110px; vertical-align:middle;">사용자권한</td>
+						<td colspan="2">
+							<input type="checkbox" name="authList[0].auth" value="ROLE_USER"/>ROLE_USER
+							<input type="checkbox" name="authList[1].auth" value="ROLE_MANAGER"/>ROLE_MANAGER
+							<input type="checkbox" name="authList[2].auth" value="ROLE_ADMIN"/>ROLE_ADMIN
+						</td>
+					</tr>
+					
 					<tr>
 						<td colspan="3" style="text-align:left;">
 							<span id="passMessage" style="color:red"></span>

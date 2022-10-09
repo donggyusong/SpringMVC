@@ -20,3 +20,27 @@ create table myboard(
 	count int default 0,
 	primary key(idx)
 )
+
+drop table mem_stb
+
+create table mem_stbl(
+	memIdx int not null,
+	memID varchar(20) not null,
+	memPassword varchar(68) not null,
+	memName varchar(20) not null,
+	memAge int,
+	memGender varchar(20),
+	memEmail varchar(50),
+	memProfile varchar(50),
+	primary key(memIdx)
+)
+
+drop table mem_stbl
+
+create tblae mem_auth(
+	no int not null auto_increment,
+	memID varchar(50) not null,
+	auth varchar(50) not null,
+	primary key(no),
+	constraint fk_member_auth foreign key(memID) references mem_stbl(memID)
+)

@@ -1,11 +1,13 @@
 package kr.board.controller;
 
 import java.io.File;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,6 +17,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.oreilly.servlet.MultipartRequest;
 import com.oreilly.servlet.multipart.DefaultFileRenamePolicy;
 
+import kr.board.entity.AuthVO;
 import kr.board.entity.Member;
 import kr.board.mapper.MemberMapper;
 
@@ -23,6 +26,9 @@ public class MemberController {
 	
 	@Autowired
 	MemberMapper memberMapper;
+	
+	@Autowired
+	PasswordEncoder pwEncoder;
 	
 	@RequestMapping("/memJoin.do")
 	public String memRegister() {
@@ -53,30 +59,20 @@ public class MemberController {
 													  RedirectAttributes rttr,
 													  HttpSession session) {
 																													//세션 객체가 필요하면 매개변수로 받아서 쓰면 된다.
+		System.out.println("동기");
+		System.out.println(member);
+		
 		//유효성 체크
 		if(member.getMemID() == null || member.getMemID().equals("") ||
 				memPassword1==null || memPassword1.equals("")||
 				memPassword2==null || memPassword2.equals("")||
 				member.getMemName()==null || member.getMemName().equals("")||
-				member.getMemAge()==0||
+				member.getMemAge()==0 || member.getAuthList().size()==0 ||
 				member.getMemGender() ==null || member.getMemGender().equals("")||
 				member.getMemEmail()==null || member.getMemEmail().equals("")){
-			
-			
-			
-			//누락메세지를 가지고 리다이렉트를 해야한다.
-			//근데 리다이렉트라서 객체 바인딩을 할 수 없다.
-			//join.jsp로 메세지를 어떻게 보낼거냐? 그때 쓰는게 Spring에서는 제공해주는 RedirectAttributes가 있다.
-			//이건 리다이렉트가 되었을 때 값을 리다이렉트 페이지로 한번만 전달할 수 있다.
-			//이 RedirectAttributes에다가 객체 바인딩을 시키자.
-			//원래 객체바인딩은 Model, HttpServletRequest, HttpSession 이런곳에 했다. 
-			//근데 Model이나 HttpServletRequest에 하면 리다이렉트 할 때 객체가 새로 생성되므로 객체 바인딩을 하는게 의미가 없다.
-			//HttpSession에 해도 되긴하는데 이건 회원인증할때나 쓰는거다.
-			
-			//객체바인딩을 한번만 할거라는게 FlashAttribute이다.
+		
 			rttr.addFlashAttribute("msgType", "실패 메세지");
 			rttr.addFlashAttribute("msg", "모든 내용을 입력하세요");
-			//이렇게 바인딩 해놓으면 EL로 ${msgType} 이렇게 꺼내서 쓸 수 있다.
 			
 			return "redirect:/memJoin.do";
 		}
@@ -91,12 +87,27 @@ public class MemberController {
 		member.setMemProfile("");  //지금 사진이미지는 없으므로 "" 공백을 넣었다.
 												//왜냐면 아무것도 안넣으면 null이 들어가므로 null과 공백의 의미는 다르기 때문이다.
 		
+		//스프링 시큐리티 API를 사용한 비밀번호 암호화
+		String encyptPw =  pwEncoder.encode(member.getMemPassword());
+		member.setMemPassword(encyptPw);
 		
 		//회원 테이블 저장하기
 		int result =  memberMapper.register(member);
 		
 		if(result == 1) {
 			//회원 가입 성공
+			//회원 가입 성공 후 회원의 권한을 저장하자
+			List<AuthVO> list = member.getAuthList();
+			for(AuthVO authVO : list) {
+				if(authVO != null) {
+					AuthVO saveVO = new AuthVO();
+					saveVO.setMemID(member.getMemID());
+					saveVO.setAuth(authVO.getAuth());
+					memberMapper.authInsert(saveVO);
+				}
+			}
+			
+		
 			//-> 회원가입성공메세지
 			rttr.addFlashAttribute("msgType", "성공 메세지");
 			rttr.addFlashAttribute("msg", "회원가입에 성공했습니다");
@@ -185,7 +196,7 @@ public class MemberController {
 			memPassword1==null || memPassword1.equals("")||
 			memPassword2==null || memPassword2.equals("")||
 			m.getMemName()==null || m.getMemName().equals("")||
-			m.getMemAge()==0||
+			m.getMemAge()==0 || m.getAuthList().size()==0 ||
 			m.getMemGender() ==null || m.getMemGender().equals("")||
 			m.getMemEmail()==null || m.getMemEmail().equals("")){
 			
@@ -204,11 +215,28 @@ public class MemberController {
 			return "redirect:/memUpdateForm.do";
 		}
 		
+		String encyptPw = pwEncoder.encode(m.getMemPassword());
+		m.setMemPassword(encyptPw);
+		
 		//회원 수정 저장하기
 		int result =  memberMapper.memUpdate(m);
 		
 		if(result == 1) {
 			//회원 수정 성공
+			
+			//기존의 권한을 다 삭제한다.
+			memberMapper.authDelete(m.getMemID());
+			
+			List<AuthVO> list = m.getAuthList();
+			for(AuthVO authVO : list) {
+				if(authVO.getAuth()!=null) {
+					AuthVO saveVO = new AuthVO();
+					saveVO.setMemID(m.getMemID());
+					saveVO.setAuth(authVO.getAuth());
+					memberMapper.authInsert(saveVO);
+				}
+			}
+			
 			//-> 회원수정성공메세지
 			rttr.addFlashAttribute("msgType", "성공 메세지");
 			rttr.addFlashAttribute("msg", "회원 정보 수정에 성공했습니다");
